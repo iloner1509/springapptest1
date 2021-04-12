@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 @Getter
 @AllArgsConstructor
 public class Product implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Column(name = "product_id")
@@ -57,7 +58,7 @@ public class Product implements Serializable {
         this.price = price;
         this.quantity = quantity;
         this.unit = unit;
-        this.status = status;
+        this.status = Status.Active;
 
     }
 

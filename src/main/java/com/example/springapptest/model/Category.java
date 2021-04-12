@@ -19,7 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Category implements Serializable {
-
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -45,6 +45,6 @@ public class Category implements Serializable {
     private Set<Category> child = new HashSet<>();
 
     @OneToMany(mappedBy = "category")
-    private List<Product> products=new ArrayList<>();
+    private List<Product> products = new ArrayList<>();
 
 }
