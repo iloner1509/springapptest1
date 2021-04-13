@@ -9,6 +9,9 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -38,7 +41,7 @@ public class User implements Serializable {
     private String fullName;
 
     @Column(length = 100)
-    private String Avatar;
+    private String avatar;
 
     private Status status;
 
@@ -50,7 +53,26 @@ public class User implements Serializable {
         this.email = email;
         this.password = password;
         this.fullName = fullName;
-        Avatar = avatar;
-        this.status = Status.Active;
+        this.avatar = avatar;
+        this.status = status;
+    }
+    public User(String email,
+                String password,
+                String fullName,
+                String avatar) {
+        this.email = email;
+        this.password = password;
+        this.fullName = fullName;
+        this.avatar = avatar;
+        this.status = Status.Active ;
+    }
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles=new HashSet<>();
+
+    public void addRole(Role role){
+        this.roles.add(role);
     }
 }

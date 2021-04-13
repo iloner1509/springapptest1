@@ -43,7 +43,7 @@ public class Product implements Serializable {
     private Status status = Status.InActive;
 
     @ManyToOne
-    @JoinColumn(name="category_id")
+    @JoinColumn(name = "category_id")
     private Category category;
 
     public Product(String name,
@@ -51,15 +51,16 @@ public class Product implements Serializable {
                    BigDecimal price,
                    Integer quantity,
                    String unit,
-                   Status status
-                   ) {
+                   Status status,
+                   Category category
+    ) {
         this.name = name;
         this.image = image;
         this.price = price;
         this.quantity = quantity;
         this.unit = unit;
         this.status = Status.Active;
-
+        this.category = category;
     }
 
 
