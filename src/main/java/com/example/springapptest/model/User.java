@@ -22,25 +22,31 @@ import java.util.UUID;
 @AllArgsConstructor
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+//    @Id
+//    @GeneratedValue(generator = "UUID")
+//    @GenericGenerator(
+//            name = "UUID",
+//            strategy = "org.hibernate.id.UUIDGenerator"
+//    )
+//    @Column(name = "id", updatable = false, nullable = false)
+//    private UUID id;
 
-    @Column(length = 100,nullable = false,unique = true)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String username;
+
+    @Column(nullable = false,unique = true)
     private String email;
 
-    @Column(length = 50,nullable = false)
+    @Column(nullable = false)
     private String password;
 
-    @Column(name = "full_name",length = 50)
+    @Column(name = "full_name")
     private String fullName;
 
-    @Column(length = 100)
     private String avatar;
 
     private Status status;
@@ -49,28 +55,33 @@ public class User implements Serializable {
                 String password,
                 String fullName,
                 String avatar,
-                Status status) {
+                Status status,
+                String username) {
         this.email = email;
         this.password = password;
         this.fullName = fullName;
         this.avatar = avatar;
         this.status = status;
+        this.username=username;
     }
     public User(String email,
                 String password,
                 String fullName,
-                String avatar) {
+                String avatar,
+                String username) {
         this.email = email;
         this.password = password;
         this.fullName = fullName;
         this.avatar = avatar;
-        this.status = Status.Active ;
+        this.status = Status.Active;
+        this.username=username;
     }
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles=new HashSet<>();
+
 
     public void addRole(Role role){
         this.roles.add(role);

@@ -22,9 +22,11 @@ public class RoleRepositoryTests {
     public void TestCreateFirstRole(){
         Role testRole=new Role("Admin","123");
         Role normalRole =new Role("Staff","test");
+        Role userRole =new Role("User","user role");
         List<Role> roleList=new ArrayList<Role>();
         roleList.add(testRole);
         roleList.add(normalRole);
+        roleList.add(userRole);
         roleRepository.saveAll(roleList);
     }
 

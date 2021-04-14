@@ -32,8 +32,8 @@ public class UserRepositoryTests {
 
     @Test
     public void TestCreateUser() {
-        User admin = new User("trung@gmail.com", "123456", "trung", "avatar", Status.Active);
-        User staff = new User("test@gmail", "123456", "trung", "avatar", Status.Active);
+        User admin = new User("trung@gmail.com", "123456", "trung", "avatar",Status.Active,"admin");
+        User staff = new User("test@gmail", "123456", "trung", "avatar", Status.Active,"trung123");
 
         Role roleAdmin = entityManager.createQuery(
                 "SELECT u from Role u WHERE u.name = :role", Role.class).setParameter("role", "Admin").getSingleResult();
