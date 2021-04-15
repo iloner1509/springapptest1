@@ -30,7 +30,7 @@ public class Role implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 150,nullable = false)
+    @Column(nullable = false)
     private String name;
 
     private String description;

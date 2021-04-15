@@ -49,7 +49,7 @@ public class User implements Serializable {
 
     private String avatar;
 
-    private Status status;
+    private Status status=Status.Active;
 
     public User(String email,
                 String password,
@@ -66,14 +66,9 @@ public class User implements Serializable {
     }
     public User(String email,
                 String password,
-                String fullName,
-                String avatar,
                 String username) {
         this.email = email;
         this.password = password;
-        this.fullName = fullName;
-        this.avatar = avatar;
-        this.status = Status.Active;
         this.username=username;
     }
     @ManyToMany(fetch = FetchType.LAZY)
