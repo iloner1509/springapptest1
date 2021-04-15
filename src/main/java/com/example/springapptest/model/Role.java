@@ -1,5 +1,6 @@
 package com.example.springapptest.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,7 @@ public class Role implements Serializable {
     private String description;
 
     @ManyToMany(mappedBy = "roles")
+    @JsonBackReference
     private List<User> users=new ArrayList<>();
 
     public Role(String name, String description) {
