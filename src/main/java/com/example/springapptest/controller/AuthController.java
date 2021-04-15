@@ -21,11 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.example.springapptest.controller.UserController.getResponseEntity;
+
 @RestController
 @RequestMapping(path = "api/auth")
 public class AuthController {
-    @Autowired
-    AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
 //    @Autowired
 //    UserRepository userRepository;
@@ -33,23 +34,17 @@ public class AuthController {
 //    @Autowired
 //    RoleRepository roleRepository;
 
+    private final JwtTokenProvider jwtTokenProvider;
+
     @Autowired
-    JwtTokenProvider jwtTokenProvider;
+    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginDto loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String jwt = jwtTokenProvider.generateToken(authentication);
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles));
+        return getResponseEntity(loginRequest, authenticationManager, jwtTokenProvider);
     }
+
 }

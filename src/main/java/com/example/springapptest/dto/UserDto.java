@@ -4,6 +4,8 @@ import com.example.springapptest.common.Status;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 public class UserDto {
@@ -18,4 +20,6 @@ public class UserDto {
     private String avatar;
 
     private Status status;
+
+    private Set<String> roles;
 }
