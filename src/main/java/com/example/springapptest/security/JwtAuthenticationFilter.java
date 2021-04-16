@@ -1,13 +1,13 @@
 package com.example.springapptest.security;
 
-import com.example.springapptest.model.CustomUserDetails;
 import com.example.springapptest.service.UserDetailsServiceIpl;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -31,26 +31,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // Lấy jwt từ request
             String jwt = getJwtFromRequest(httpServletRequest);
-            if (jwt!=null&&tokenProvider.validateToken(jwt)){
-                String username=tokenProvider.getUsernameFromJwtToken(jwt);
+            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+                String username = tokenProvider.getUsernameFromJwtToken(jwt);
 
-                UserDetails userDetails=userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken auth=new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
+            } else {
+                log.error("failed on set user authentication");
             }
 
+        } catch (ExpiredJwtException ex) {
+            String requestUrl = httpServletRequest.getRequestURL().toString();
+            if (requestUrl.contains("refreshtoken")) {
+                allowForRefreshToken(ex, httpServletRequest);
+            } else
+                httpServletRequest.setAttribute("Exception", ex);
+
+        } catch (BadCredentialsException ex) {
+            httpServletRequest.setAttribute("Exception", ex);
         } catch (Exception ex) {
-            log.error("failed on set user authentication", ex);
+            log.error("failed on set user authentication" + ex);
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
+
+    private void allowForRefreshToken(ExpiredJwtException ex, HttpServletRequest request) {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(null, null, null);
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        //
+    }
+
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         // Kiểm tra xem header Authorization có chứa thông tin jwt không
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7,bearerToken.length());
+            return bearerToken.substring(7, bearerToken.length());
         }
         return null;
     }

@@ -55,7 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.cors().and().csrf().disable();
         httpSecurity.exceptionHandling().authenticationEntryPoint(authorizedHandler);
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        httpSecurity.authorizeRequests().antMatchers("/api/user/login","/api/user/register").permitAll().
+        httpSecurity.authorizeRequests().antMatchers("/api/users/login","/api/users/register").permitAll().
                 antMatchers("/api/test/**").permitAll().
                 anyRequest().authenticated();
         httpSecurity.exceptionHandling().accessDeniedPage("/api/user/login");

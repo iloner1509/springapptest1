@@ -3,6 +3,7 @@ package com.example.springapptest.security;
 import com.example.springapptest.model.CustomUserDetails;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -11,19 +12,41 @@ import java.util.Date;
 @Component
 @Slf4j
 public class JwtTokenProvider {
-    private final String JWT_SECRET="secret";
-    private final long JWT_EXPIRATION=5000000l;
+    @Value("${jwt.secret}")
+    private String JWT_SECRET;
 
+    @Value("${jwt.expiration}")
+    private int JWT_EXPIRATION;
+
+    @Value("${jwt.refreshExpirationDateInMs}")
+    private int refreshExpiredToken;
     public String generateToken(Authentication authentication) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
         CustomUserDetails userPrincipal= (CustomUserDetails) authentication.getPrincipal();
         // Tạo chuỗi json web token từ id của user.
 
+       return doGenerateToken(userPrincipal.getUsername());
+
+//        return Jwts.builder()
+//                .setSubject((userPrincipal.getUsername()))
+//                .setIssuedAt(now)
+//                .setExpiration(expiryDate)
+//                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+//                .compact();
+    }
+
+    private String doGenerateToken(String subject){
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+JWT_EXPIRATION))
+                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+                .compact();
+    }
+    public String doGenerateRefreshToken(String subject){
+        return Jwts.builder()
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+refreshExpiredToken))
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
                 .compact();
     }
@@ -46,16 +69,16 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT token");
+            throw new MalformedJwtException("Invalid JWT token" +ex);
         } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token");
+            throw ex;
         } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token");
+            throw new UnsupportedJwtException("Unsupported JWT token" +ex);
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty.");
+            throw new IllegalArgumentException("JWT claims string is empty." +ex);
         }catch (SignatureException ex){
-            log.error("Invalid JWT signature");
+            throw new SignatureException("JWT claims string is empty." +ex);
         }
-        return false;
+
     }
 }

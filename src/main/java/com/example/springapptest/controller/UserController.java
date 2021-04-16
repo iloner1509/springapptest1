@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,11 +30,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(path = "/api")
+@RequestMapping(path = "/api/users")
 public class UserController {
 
 
     private final AuthenticationManager authenticationManager;
+
+    private final UserRepository userRepository;
+
+    private final RoleRepository roleRepository;
+
+    private final ModelMapper modelMapper;
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public UserController(AuthenticationManager authenticationManager,
@@ -50,17 +61,7 @@ public class UserController {
         this.modelMapper = modelMapper;
     }
 
-    private final UserRepository userRepository;
-
-    private final RoleRepository roleRepository;
-
-    private final ModelMapper modelMapper;
-
-    private final JwtTokenProvider jwtTokenProvider;
-
-    private final BCryptPasswordEncoder passwordEncoder;
-
-    @PostMapping("/user/login")
+    @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginDto loginRequest) {
         return getResponseEntity(loginRequest, authenticationManager, jwtTokenProvider);
     }
@@ -79,7 +80,7 @@ public class UserController {
         String jwt = jwtTokenProvider.generateToken(authentication);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
+        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getId(),
@@ -88,7 +89,7 @@ public class UserController {
                 roles));
     }
 
-    @GetMapping("/users")
+    @GetMapping()
     public ResponseEntity<List<User>> getAllUser() {
         try {
             List<User> users = new ArrayList<User>();
@@ -103,7 +104,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
@@ -113,19 +114,23 @@ public class UserController {
         }
     }
 
-    @PostMapping("/users")
+    @PostMapping()
     public ResponseEntity<User> createUser(@RequestBody UserDto user) {
         try {
             User createdUser = userRepository.save(
-                    new User(user.getEmail(),
-                            passwordEncoder.encode(user.getPassword()), user.getUsername()));
+                    new User(user.getUsername(),
+                            user.getEmail(),
+                            passwordEncoder.encode(user.getPassword()),
+                            user.getFullName(),
+                            user.getAvatar(),
+                            setRole(user.getRoles())));
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping("/users/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody UserDto user) {
         Optional<User> userData = userRepository.findById(id);
         if (userData.isPresent()) {
@@ -143,11 +148,11 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/user/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteUserById(@PathVariable("id") long id){
         try{
             userRepository.deleteById(id);
-            return ResponseEntity.ok(new MessageResponse("Đã xóa user"+id));
+            return ResponseEntity.ok(new MessageResponse("Đã xóa user "+id));
         }
         catch (Exception e){
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -155,7 +160,7 @@ public class UserController {
 
     }
 
-    @DeleteMapping("/users")
+    @DeleteMapping()
     public ResponseEntity deleteAllUser(){
         try{
             userRepository.deleteAll();
@@ -166,16 +171,24 @@ public class UserController {
         }
     }
 
-    @PostMapping("/user/register")
-    public ResponseEntity<?> register(@Validated @RequestBody RegisterDto registerRequest){
-        if (userRepository.existsByUsername(registerRequest.getUsername())){
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Tên tài khoản đã được sử dụng!"));
+    @PostMapping("/register")
+    public ResponseEntity register(@Validated @RequestBody RegisterDto registerRequest){
+        try{
+            if (userRepository.existsByUsername(registerRequest.getUsername())){
+                return ResponseEntity.badRequest().body(new MessageResponse("Error: Tên tài khoản đã được sử dụng!"));
+            }
+
+            User user=new User(registerRequest.getEmail(),
+                    passwordEncoder.encode(registerRequest.getPassword()),
+                    registerRequest.getUsername());
+            user.setRoles(setRole(registerRequest.getRoles()));
+            userRepository.save(user);
+            return new ResponseEntity(user,HttpStatus.CREATED);
+        }
+        catch (Exception e){
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        User user=new User(registerRequest.getEmail(),passwordEncoder.encode(registerRequest.getPassword()),registerRequest.getUsername());
-        user.setRoles(setRole(registerRequest.getRoles()));
-        userRepository.save(user);
-        return ResponseEntity.ok(new MessageResponse("Đăng ký thành công"));
     }
 
     private Set<Role> setRole(Set<String> strRoles){

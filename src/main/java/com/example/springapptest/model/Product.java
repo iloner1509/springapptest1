@@ -51,7 +51,6 @@ public class Product implements Serializable {
                    BigDecimal price,
                    Integer quantity,
                    String unit,
-                   Status status,
                    Category category
     ) {
         this.name = name;

@@ -72,6 +72,21 @@ public class User implements Serializable {
         this.password = password;
         this.username=username;
     }
+
+    public User(String username,
+                String email,
+                String password,
+                String fullName,
+                String avatar,
+                Set<Role> roles) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.fullName = fullName;
+        this.avatar = avatar;
+        this.roles = roles;
+    }
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
