@@ -24,11 +24,10 @@ public class Category implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    public Category(String name, String description, Category parent, Set<Category> child) {
+    public Category(String name, String description) {
         this.name = name;
         this.description = description;
-        this.parent = parent;
-        this.child = child;
+
     }
 
     @Column(nullable = false)

@@ -5,9 +5,14 @@ import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -19,12 +24,26 @@ public class JwtTokenProvider {
     private int JWT_EXPIRATION;
 
     @Value("${jwt.refreshExpirationDateInMs}")
-    private int refreshExpiredToken;
-    public String generateToken(Authentication authentication) {
-        CustomUserDetails userPrincipal= (CustomUserDetails) authentication.getPrincipal();
-        // Tạo chuỗi json web token từ id của user.
+    private int JWT_REFRESHEXPIRATION;
 
-       return doGenerateToken(userPrincipal.getUsername());
+    public String generateToken(Authentication authentication) {
+        CustomUserDetails userPrincipal = (CustomUserDetails) authentication.getPrincipal();
+
+        Map<String, Object> claims = new HashMap<>();
+
+        Collection<? extends GrantedAuthority> roles = userPrincipal.getAuthorities();
+
+        if (roles.contains(new SimpleGrantedAuthority("Admin"))) {
+            claims.put("isAdmin", true);
+        }
+        if (roles.contains(new SimpleGrantedAuthority("Staff"))) {
+            claims.put("isStaff", true);
+        }
+        if (roles.contains(new SimpleGrantedAuthority("Admin"))) {
+            claims.put("isUser", true);
+        }
+
+        return doGenerateToken(claims,userPrincipal.getUsername());
 
 //        return Jwts.builder()
 //                .setSubject((userPrincipal.getUsername()))
@@ -34,19 +53,22 @@ public class JwtTokenProvider {
 //                .compact();
     }
 
-    private String doGenerateToken(String subject){
+    private String doGenerateToken(Map<String,Object> claims,String subject) {
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+JWT_EXPIRATION))
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION))
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
                 .compact();
     }
-    public String doGenerateRefreshToken(String subject){
+
+    public String doGenerateRefreshToken(Map<String,Object> claims,String subject) {
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+refreshExpiredToken))
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_REFRESHEXPIRATION))
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
                 .compact();
     }
@@ -60,7 +82,7 @@ public class JwtTokenProvider {
         return Long.parseLong(claims.getSubject());
     }
 
-    public String getUsernameFromJwtToken(String token){
+    public String getUsernameFromJwtToken(String token) {
         return Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token).getBody().getSubject();
     }
 
@@ -69,15 +91,15 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException ex) {
-            throw new MalformedJwtException("Invalid JWT token" +ex);
+            throw new MalformedJwtException("Invalid JWT token" + ex);
         } catch (ExpiredJwtException ex) {
             throw ex;
         } catch (UnsupportedJwtException ex) {
-            throw new UnsupportedJwtException("Unsupported JWT token" +ex);
+            throw new UnsupportedJwtException("Unsupported JWT token" + ex);
         } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException("JWT claims string is empty." +ex);
-        }catch (SignatureException ex){
-            throw new SignatureException("JWT claims string is empty." +ex);
+            throw new IllegalArgumentException("JWT claims string is empty." + ex);
+        } catch (SignatureException ex) {
+            throw new SignatureException("JWT claims string is empty." + ex);
         }
 
     }

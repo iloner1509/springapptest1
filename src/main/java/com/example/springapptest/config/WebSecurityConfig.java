@@ -44,10 +44,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 //    @Override
-//    protected void configure(AuthenticationManagerBuilder auth)
-//            throws Exception {
-//        auth.userDetailsService(userDetailsService) // Cung cáp userservice cho spring security
-//                .passwordEncoder(passwordEncoder()); // cung cấp password encoder
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//
 //    }
 
     @Override
@@ -55,10 +53,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.cors().and().csrf().disable();
         httpSecurity.exceptionHandling().authenticationEntryPoint(authorizedHandler);
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        httpSecurity.authorizeRequests().antMatchers("/api/users/login","/api/users/register").permitAll().
+        httpSecurity.authorizeRequests().
+                antMatchers("/api/auth/login","/api/auth/register").permitAll().
                 antMatchers("/api/test/**").permitAll().
+                antMatchers("/api/users/**").hasAnyAuthority("Admin","Staff").
                 anyRequest().authenticated();
-        httpSecurity.exceptionHandling().accessDeniedPage("/api/user/login");
+        httpSecurity.exceptionHandling().accessDeniedPage("/api/auth/login");
 
         httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
