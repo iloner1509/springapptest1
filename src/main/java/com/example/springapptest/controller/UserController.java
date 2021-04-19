@@ -102,13 +102,13 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteUserById(@PathVariable("id") long id){
             userRepository.deleteById(id);
-            return ResponseEntity.ok(new MessageResponse("Deleted user with "+id));
+            return ResponseEntity.ok("Deleted user with "+id);
     }
 
     @DeleteMapping()
     public ResponseEntity deleteAllUser(){
             userRepository.deleteAll();
-            return ResponseEntity.ok(new MessageResponse("All user has been deleted"));
+            return ResponseEntity.ok("All user has been deleted");
     }
 
     private Set<Role> setRole(Set<String> strRoles){
