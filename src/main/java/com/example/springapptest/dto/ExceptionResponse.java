@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-@AllArgsConstructor
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
-public class MessageResponse {
+@AllArgsConstructor
+public class ExceptionResponse {
     private String message;
-
+    private LocalDateTime dateTime;
 }
