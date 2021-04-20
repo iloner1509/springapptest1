@@ -48,7 +48,7 @@ public class Order implements Serializable {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "orderdetail_id",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "order",cascade = CascadeType.REMOVE)
     @JsonIgnore
     private Set<OderDetail> orderDetail=new HashSet<>();
 
