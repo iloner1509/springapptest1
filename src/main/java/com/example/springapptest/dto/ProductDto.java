@@ -1,13 +1,13 @@
 package com.example.springapptest.dto;
 
 import com.example.springapptest.common.Status;
-import com.example.springapptest.model.Category;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
 
+@Getter
+@Setter
 public class ProductDto {
 
     public String name;

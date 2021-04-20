@@ -2,6 +2,7 @@ package com.example.springapptest.model;
 
 
 import com.example.springapptest.common.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,8 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -58,9 +61,10 @@ public class Product implements Serializable {
         this.price = price;
         this.quantity = quantity;
         this.unit = unit;
-        this.status = Status.Active;
         this.category = category;
     }
-
+    @OneToMany(mappedBy = "orderdetail_id",cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private Set<OderDetail> orderDetail=new HashSet<>();
 
 }

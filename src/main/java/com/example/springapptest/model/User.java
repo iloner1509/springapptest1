@@ -1,6 +1,7 @@
 package com.example.springapptest.model;
 
 import com.example.springapptest.common.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -94,6 +95,9 @@ public class User implements Serializable {
     @JsonManagedReference
     private Set<Role> roles=new HashSet<>();
 
+    @OneToMany(mappedBy = "user",cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private Set<Order> bills=new HashSet<>();
 
     public void addRole(Role role){
         this.roles.add(role);

@@ -2,7 +2,6 @@ package com.example.springapptest.controller;
 
 import com.example.springapptest.dto.JwtResponse;
 import com.example.springapptest.dto.LoginDto;
-import com.example.springapptest.dto.MessageResponse;
 import com.example.springapptest.dto.RegisterDto;
 import com.example.springapptest.model.CustomUserDetails;
 import com.example.springapptest.model.Role;
@@ -110,7 +109,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity register(@Validated @RequestBody RegisterDto registerRequest) {
             if (userRepository.existsByUsername(registerRequest.getUsername())) {
-                return ResponseEntity.badRequest().body(new MessageResponse("Error: Tên tài khoản đã được sử dụng!"));
+                return ResponseEntity.badRequest().body("Error: Username is existed!");
             }
 
             User user = new User(registerRequest.getEmail(),
