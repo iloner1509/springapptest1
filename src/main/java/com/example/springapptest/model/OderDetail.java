@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Entity
+@Table(name = "orderdetails")
 @Getter
 @Setter
 @NoArgsConstructor

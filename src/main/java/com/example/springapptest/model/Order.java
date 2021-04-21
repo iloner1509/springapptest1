@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "orders")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -50,6 +51,6 @@ public class Order implements Serializable {
 
     @OneToMany(mappedBy = "order",cascade = CascadeType.REMOVE)
     @JsonIgnore
-    private Set<OderDetail> orderDetail=new HashSet<>();
+    private Set<OderDetail> orderDetails=new HashSet<>();
 
 }

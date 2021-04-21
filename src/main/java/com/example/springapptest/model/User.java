@@ -97,7 +97,7 @@ public class User implements Serializable {
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.REMOVE)
     @JsonIgnore
-    private Set<Order> bills=new HashSet<>();
+    private Set<Order> orders=new HashSet<>();
 
     public void addRole(Role role){
         this.roles.add(role);

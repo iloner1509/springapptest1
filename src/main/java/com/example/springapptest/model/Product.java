@@ -63,7 +63,8 @@ public class Product implements Serializable {
         this.unit = unit;
         this.category = category;
     }
-    @OneToMany(mappedBy = "orderdetail_id",cascade = CascadeType.REMOVE)
+
+    @OneToMany(mappedBy = "product",cascade = CascadeType.REMOVE)
     @JsonIgnore
     private Set<OderDetail> orderDetail=new HashSet<>();
 
