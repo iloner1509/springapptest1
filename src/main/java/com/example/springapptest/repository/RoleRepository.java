@@ -9,8 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface RoleRepository extends CrudRepository<Role, Long> {
-    //    @Value(value = "select * from roles")
-//    public List<Role> getListRoles();
     Role findByName(String name);
 }
 

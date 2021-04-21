@@ -3,6 +3,7 @@ package com.example.springapptest.model;
 import com.example.springapptest.common.BillStatus;
 import com.example.springapptest.common.PaymentMethod;
 import com.example.springapptest.common.Status;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,6 +44,7 @@ public class Order implements Serializable {
 
     private Status status=Status.Active;
 
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDateTime dateCreated;
 
     @ManyToOne
@@ -53,4 +55,14 @@ public class Order implements Serializable {
     @JsonIgnore
     private Set<OderDetail> orderDetails=new HashSet<>();
 
+    @Transient
+    public void addOrderDetail(OderDetail orderDetail){
+        if (orderDetail!=null){
+            if (orderDetails==null){
+                orderDetails=new HashSet<>();
+            }
+            orderDetails.add(orderDetail);
+            orderDetail.setOrder(this);
+        }
+    }
 }

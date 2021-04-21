@@ -99,7 +99,20 @@ public class User implements Serializable {
     @JsonIgnore
     private Set<Order> orders=new HashSet<>();
 
+    @Transient
     public void addRole(Role role){
         this.roles.add(role);
+    }
+
+    @Transient
+    public void addOrder(Order order){
+        if (order!=null){
+            if(orders==null){
+                orders=new HashSet<>();
+            }
+            orders.add(order);
+            order.setUser(this);
+        }
+
     }
 }

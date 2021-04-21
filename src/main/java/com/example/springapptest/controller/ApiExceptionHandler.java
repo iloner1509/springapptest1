@@ -25,15 +25,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public ResponseEntity<?> handleNotFoundException(NotFoundException ex, WebRequest request){
-        ExceptionResponse response= new ExceptionResponse(ex.getMessage(),LocalDateTime.now());
-        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> handleNotFoundException(NotFoundException ex, WebRequest request) {
+        ExceptionResponse response = new ExceptionResponse(ex.getMessage(), LocalDateTime.now());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-//    @ExceptionHandler(MalformedJwtException.class)
-//    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-//    public ResponseEntity<?> handleNotFoundException(NotFoundException ex, WebRequest request){
-//        ExceptionResponse response= new ExceptionResponse(ex.getMessage(),LocalDateTime.now());
-//        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
-//    }
+
 }

@@ -19,11 +19,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private AuthEntryPointJwt authorizedHandler;
+    private final AuthEntryPointJwt authorizedHandler;
 
-    @Autowired
-    UserDetailsServiceIpl userDetailsService;
+    final UserDetailsServiceIpl userDetailsService;
+
+    public WebSecurityConfig(AuthEntryPointJwt authorizedHandler, UserDetailsServiceIpl userDetailsService) {
+        this.authorizedHandler = authorizedHandler;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
     @Override
@@ -54,7 +57,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.exceptionHandling().authenticationEntryPoint(authorizedHandler);
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         httpSecurity.authorizeRequests().
-                antMatchers("/api/auth/login","/api/auth/register").permitAll().
+                antMatchers("/api/auth/login","/api/auth/register","/v2/api-docs",
+                        "/configuration/ui",
+                        "/swagger-resources/**",
+                        "/configuration/security",
+                        "/swagger-ui.html",
+                        "/webjars/**").permitAll().
                 antMatchers("/api/test/**").permitAll().
                 antMatchers("/api/users/**").hasAnyAuthority("Admin","Staff").
                 anyRequest().authenticated();
